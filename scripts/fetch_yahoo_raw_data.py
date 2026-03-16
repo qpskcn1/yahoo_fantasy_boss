@@ -50,6 +50,7 @@ def fetch_yahoo_raw_data(endpoint_type, params=None):
 
     url_map = {
         "league": f"{base_url}/league/{league_key}/standings",
+        "settings": f"{base_url}/league/{league_key}/settings",
         "team": f"{base_url}/team/{league_key}.t.{team_id}/stats",
         "roster": f"{base_url}/team/{league_key}.t.{team_id}/roster",
         "matchups": f"{base_url}/league/{league_key}/scoreboard",
