@@ -1,0 +1,45 @@
+[
+  {
+    "name": "fetch_yahoo_raw_data",
+    "description": "Fetches raw league, team, roster, or matchup data from the Yahoo Fantasy API. Requires credentials in .env.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "endpoint_type": {
+          "type": "string",
+          "enum": ["league", "team", "roster", "matchups"],
+          "description": "The type of data to fetch."
+        },
+        "params": {
+          "type": "object",
+          "description": "Optional dictionary of parameters for the API call (e.g., {'count': 10}).",
+          "additionalProperties": true
+        }
+      },
+      "required": ["endpoint_type"]
+    }
+  },
+  {
+    "name": "search_external_intel",
+    "description": "Searches Reddit r/fantasybball for news and discussions regarding a specific player.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "player_name": {
+          "type": "string",
+          "description": "The full name of the basketball player (e.g., 'Stephen Curry')."
+        }
+      },
+      "required": ["player_name"]
+    }
+  },
+  {
+    "name": "get_waiver_pool_stats",
+    "description": "Fetches top waiver wire / free agent players currently available in the league.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  }
+]

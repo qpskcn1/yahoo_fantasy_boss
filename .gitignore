@@ -1,0 +1,10 @@
+# Credentials / Config
+config/.env
+config/.tokens.json
+
+# Python cache / bytecode
+__pycache__/
+*.pyc
+
+# Local items
+.DS_Store

@@ -1,0 +1,23 @@
+{
+  "skill_name": "yahoo-fantasy-boss",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How is my matchup looking this week?",
+      "expected_output": "The agent should fetch matchup and roster data, calculate category differentials, and provide a summary of closely contested categories or advice on roster moves.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Should I pick up any hot guards from the waivers?",
+      "expected_output": "The agent should fetch stats for waiver players, search external intel (Reddit) for top candidates, and recommend specific guards that align with user's position.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Is there any injury news for my players?",
+      "expected_output": "The agent should get the roster, pick key players, and run searches for external intel on Reddit to find recent issues or minutes restrictions.",
+      "files": []
+    }
+  ]
+}
