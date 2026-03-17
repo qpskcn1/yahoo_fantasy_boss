@@ -50,7 +50,7 @@ After retrieving data, process it using the following logic step-by-step before 
    - Identify categories that are closely contested ("swing categories") and how injuries on either side affect them.
 
 3. **Intel Cross-Reference**:
-   - For rostered or targeted players, look up external intel (`search_external_intel.py`).
+   - For critical, GTD, or injured players on **BOTH** the user's and the opponent's rosters (as well as targeted waivers), look up external intel (`search_external_intel.py`).
    - Flag any "Injury" or "Minute restriction" or "Trend down" rumors.
 
 3. **Strategy Formulation**:
