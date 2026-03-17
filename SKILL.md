@@ -16,11 +16,27 @@ When the user asks about their team, matchup, or waivers, use the executable scr
   `python3 scripts/fetch_yahoo_raw_data.py <endpoint_type>`
   *Endpoint types*: `league` (standings), `team` (stats), `roster`, `matchups` (scoreboard).
 
-- **To fetch waiver stats**:
-  `python3 scripts/get_waiver_pool_stats.py`
+### 🔄 1. Data Aggregation (Daily Sync)
+
+Before performing any analytics, you **MUST** run the following script to pull enhanced player metrics containing the last 5 historical calendar days and note recency timestamps:
+
+```bash
+# Fetch Waiver Pool player stats
+python3 scripts/fetch_rich_player_data.py --mode waiver
+
+# Fetch specific team roster player stats
+python3 scripts/fetch_rich_player_data.py --mode team --team-id <TEAM_ID>
+```
+
+> [!CAUTION]
+> While absolute historical stats from past days are static, **Percent Ownership** and **Player Notes (injury updates/news)** update live throughout the day. Prior to analyzing any matchup standings, re-run this aggregator to ensure you are seeing the absolute latest news recency frames. Output saves to `data/rich_stats_<mode>.json`.
 
 - **To fetch external intelligence for a player**:
   `python3 scripts/search_external_intel.py "<player_name>"`
+
+> [!IMPORTANT]
+> **Data Freshness & Real-Time-ness**: 
+> Dynamic data output files inside `data/` are **not tracked by version control**. To ensure that downstream analytical prompts operate on live performance layouts, ALWAYS re-run `python3 scripts/fetch_rich_player_data.py` (with correct mode args) prior to feeding the JSON feed into analysis prompt triggers. Downstream validation scripts should respect the `_metadata.generated_at` time window (e.g., must be loaded or refreshed inside a 1-hour span).
 
 ### 2. Analytical Reasoning Flow
 After retrieving data, process it using the following logic step-by-step before answering:
