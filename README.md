@@ -47,20 +47,6 @@ If this is your first time setting it up, you need to generate a valid refresh t
 
 ---
  
- ## 🚀 Operations (Data Aggregation)
- Before running analysis prompts, you must run the following python aggregators to pull downstream calculations:
- 
- ```bash
- # 1. Fetch Waiver Candidates (Top 30 Actual/Overall Rank)
- python3 scripts/fetch_rich_player_data.py --mode waiver
- 
- # 2. Fetch Team Roster Candidates
- python3 scripts/fetch_rich_player_data.py --mode team --team-id <TEAM_ID>
- ```
- *Outputs are saved to `data/rich_stats_<mode>.json` with full updates containing notes_recency items and 5-day delta statistics dashboards.*
- 
- ---
- 
  ## 🤖 Usage in Claude Desktop / Code
 
 To combine with Claude, place this directory on your local disk. Add the following config rule or ensure Claude has access to this directory structure to run bash.
