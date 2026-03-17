@@ -46,8 +46,9 @@ After retrieving data, process it using the following logic step-by-step before 
    - Check the **injury statuses** and `.notes_recency` timestamps for both teams to frame full availability risks.
 
 2. **Category Battle (9-Cat)**:
-   - Calculate the differential between the User's team and the Opponent's team for each category.
-   - Identify categories that are closely contested ("swing categories") and how injuries on either side affect them.
+   - **Always** run `scripts/get_matchup_score.py` to extract this week's **Live Matchup Standing Score** (accumulated stats from Monday onwards Node).
+   - Combine with season aggregates (`rich_stats_<team>.json`) to form a dual view: **Season Baseline vs Current Week Live**.
+   - Calculate differentials and identify close categories ("swing categories") affected by day-to-day injuries Node.
 
 3. **Intel Cross-Reference**:
    - For critical, GTD, or injured players on **BOTH** the user's and the opponent's rosters (as well as targeted waivers), look up external intel (`search_external_intel.py`).
