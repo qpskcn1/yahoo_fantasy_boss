@@ -51,7 +51,8 @@ After retrieving data, process it using the following logic step-by-step before 
 
 3. **Intel Cross-Reference**:
    - For critical, GTD, or injured players on **BOTH** the user's and the opponent's rosters (as well as targeted waivers), look up external intel (`search_external_intel.py`).
-   - Flag any "Injury" or "Minute restriction" or "Trend down" rumors.
+   - **Fallback (Crucial)**: If `search_external_intel.py` (Reddit) yields Errors or lacks concrete summaries, **MUST** execute `search_web` targeting RotoWire/BasketballMonster using: `"[Player Name]" injury (site:rotowire.com OR site:basketballmonster.com)`.
+   - Flag any "Injury" or "Minute restriction" or "Trend down" rumors based on the returned absolute text layout.
 
 3. **Strategy Formulation**:
    - Synthesize the standings pressure and the weekly matchup gap.
