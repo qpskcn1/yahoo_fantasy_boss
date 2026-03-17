@@ -41,11 +41,15 @@ python3 scripts/fetch_rich_player_data.py --mode team --team-id <TEAM_ID>
 ### 2. Analytical Reasoning Flow
 After retrieving data, process it using the following logic step-by-step before answering:
 
-1. **Category Battle (9-Cat)**:
-   - Calculate the differential between the User's team and the Opponent's team for each category (FG%, FT%, 3PT, PTS, REB, AST, ST, BLK, TO).
-   - Identify categories that are closely contested ("swing categories").
+1. **Dual Roster Aggregation (MUST)**:
+   - **Always** run `fetch_rich_player_data.py --mode team` for **BOTH** the user's team AND the opponent's team (find opponent team ID in `matchups.json`).
+   - Check the **injury statuses** and `.notes_recency` timestamps for both teams to frame full availability risks.
 
-2. **Intel Cross-Reference**:
+2. **Category Battle (9-Cat)**:
+   - Calculate the differential between the User's team and the Opponent's team for each category.
+   - Identify categories that are closely contested ("swing categories") and how injuries on either side affect them.
+
+3. **Intel Cross-Reference**:
    - For rostered or targeted players, look up external intel (`search_external_intel.py`).
    - Flag any "Injury" or "Minute restriction" or "Trend down" rumors.
 
