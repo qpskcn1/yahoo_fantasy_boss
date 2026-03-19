@@ -42,7 +42,7 @@ def get_league_meta(access_token, league_key):
 
 def fetch_top_players(access_token, league_key, sort_by="AR", count=25):
     """Fetches top players by status A from league/players endpoint."""
-    url = f"https://fantasysports.yahooapis.com/fantasy/v2/league/{league_key}/players;out=percent_owned"
+    url = f"https://fantasysports.yahooapis.com/fantasy/v2/league/{league_key}/players;out=percent_owned,ownership"
     headers = { "Authorization": f"Bearer {access_token}", "Accept": "application/json" }
     params = {
         "format": "json",
@@ -90,7 +90,7 @@ def fetch_and_parse_metadata_batch(access_token, league_key, player_keys):
          return {}
          
     keys_str = ",".join(player_keys)
-    url = f"https://fantasysports.yahooapis.com/fantasy/v2/league/{league_key}/players;player_keys={keys_str};out=percent_owned"
+    url = f"https://fantasysports.yahooapis.com/fantasy/v2/league/{league_key}/players;player_keys={keys_str};out=percent_owned,ownership"
     headers = { "Authorization": f"Bearer {access_token}", "Accept": "application/json" }
     response = requests.get(url, headers=headers, params={"format": "json"})
     
@@ -120,12 +120,16 @@ def parse_players_list(players_list, compiled_data, player_keys_list):
              name_full = ""
              display_pos = ""
              injury_status = None
+             team_abbr = ""
+             ownership_status = ""
+             waiver_date = ""
 
              for item in meta:
                   if 'player_key' in item: player_key = item['player_key']
                   if 'name' in item: name_full = item['name']['full']
                   if 'display_position' in item: display_pos = item['display_position']
                   if 'status' in item: injury_status = item['status']
+                  if 'editorial_team_abbr' in item: team_abbr = item['editorial_team_abbr']
 
              if not player_key: continue
              
@@ -145,14 +149,21 @@ def parse_players_list(players_list, compiled_data, player_keys_list):
                        for sub_item in i['percent_owned']:
                             if 'value' in sub_item: pct_owned['value'] = sub_item['value']
                             if 'delta' in sub_item: pct_owned['delta'] = sub_item['delta']
+                  if isinstance(i, dict) and 'ownership' in i:
+                       own_node = i['ownership']
+                       if 'ownership_type' in own_node: ownership_status = own_node['ownership_type']
+                       if 'waiver_date' in own_node: waiver_date = own_node['waiver_date']
 
              if player_key not in compiled_data:
                   player_keys_list.append(player_key)
                   compiled_data[player_key] = {
                       "player_key": player_key,
                       "name": name_full,
+                      "team": team_abbr,
                       "position": display_pos,
                       "injury": injury_status,
+                      "ownership_status": ownership_status,
+                      "waiver_date": waiver_date,
                       "percent_owned": pct_owned,
                       "notes_recency": notes_recency,
                       "stats_season": {},
@@ -181,6 +192,38 @@ def fetch_batch_stats(access_token, league_key, player_keys, stats_type="season"
          return node['league'][1]['players'] if 'league' in node else node['game'][1]['players']
     except Exception:
          return {}
+
+def get_remaining_espn_games(base_date):
+    """Fetches remaining NBA games from today until Sunday of this week via ESPN."""
+    import datetime
+    days_to_sunday = 6 - base_date.weekday()
+    if days_to_sunday < 0: days_to_sunday = 6
+    end_date = base_date + datetime.timedelta(days=days_to_sunday)
+    
+    start_str = base_date.strftime("%Y%m%d")
+    end_str = end_date.strftime("%Y%m%d")
+    
+    url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    params = {"dates": f"{start_str}-{end_str}", "limit": 100}
+    try:
+        res = requests.get(url, params=params, timeout=10)
+        if res.status_code != 200: return {}
+        
+        espn_to_yahoo = {
+            "NY": "NYK", "GS": "GSW", "WSH": "WAS", "SA": "SAS", 
+            "NO": "NOP", "UTAH": "UTA"
+        }
+        
+        games = res.json().get('events', [])
+        teams_games = {}
+        for game in games:
+            for camp in game['competitions'][0]['competitors']:
+                abbr = camp['team']['abbreviation'].upper()
+                y_abbr = espn_to_yahoo.get(abbr, abbr)
+                teams_games[y_abbr] = teams_games.get(y_abbr, 0) + 1
+        return teams_games
+    except Exception:
+        return {}
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch rich player data (Waivers or Teams)")
@@ -270,6 +313,15 @@ def main():
                                             if sid in mapping:
                                                  compiled_data[p_key]["stats_recent_days"][d_str][mapping[sid]] = s['stat']['value']
                         except: pass
+
+    print("-> Fetching NBA schedule from ESPN...")
+    teams_games = get_remaining_espn_games(base_date)
+    for p_key, p_data in compiled_data.items():
+         team_abbr = p_data.get('team')
+         if team_abbr and team_abbr.upper() in teams_games:
+              p_data['remaining_games'] = teams_games[team_abbr.upper()]
+         else:
+              p_data['remaining_games'] = 0
 
     final_output = {
          "_metadata": {

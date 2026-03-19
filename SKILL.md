@@ -31,7 +31,7 @@ python3 scripts/fetch_rich_player_data.py --mode team --team-id <TEAM_ID>
 > [!CAUTION]
 > While absolute historical stats from past days are static, **Percent Ownership** and **Player Notes (injury updates/news)** update live throughout the day. Prior to analyzing any matchup standings, re-run this aggregator to ensure you are seeing the absolute latest news recency frames. Output saves to `data/rich_stats_<mode>.json`.
 
-- **To fetch external intelligence for a player**:
+- **To fetch external intelligence for a player** (Reddit, RotoWire, CBS, ESPN):
   `python3 scripts/search_external_intel.py "<player_name>"`
 
 > [!IMPORTANT]
@@ -44,6 +44,7 @@ After retrieving data, process it using the following logic step-by-step before 
 1. **Dual Roster Aggregation (MUST)**:
    - **Always** run `fetch_rich_player_data.py --mode team` for **BOTH** the user's team AND the opponent's team (find opponent team ID in `matchups.json`).
    - Check the **injury statuses** and `.notes_recency` timestamps for both teams to frame full availability risks.
+   - **Evaluate Availability & Schedule:** For waiver targets and current roster players, use the newly surfaced `"remaining_games"` and `"ownership_status"` (along with `"waiver_date"`) to mathematically project the total weekly stats and avoid dead-roster traps.
 
 2. **Category Battle (9-Cat)**:
    - **Always** run `scripts/get_matchup_score.py` to extract this week's **Live Matchup Standing Score** (accumulated stats from Monday onwards Node).
@@ -52,7 +53,7 @@ After retrieving data, process it using the following logic step-by-step before 
 
 3. **Intel Cross-Reference**:
    - For critical, GTD, or injured players on **BOTH** the user's and the opponent's rosters (as well as targeted waivers), look up external intel (`search_external_intel.py`).
-    - **Fallback (Crucial)**: If `search_external_intel.py` (both Reddit and direct RSS parses) yields Errors or lacks concrete narrative text, **MUST** execute `search_web` targeting RotoWire/BasketballMonster using: `"[Player Name]" injury (site:rotowire.com OR site:basketballmonster.com)`.
+    - **Fallback (Crucial)**: If `search_external_intel.py` returns `"fallback_suggested": true` or lacks concrete narrative text, **MUST** execute `search_web` targeting RotoWire/BasketballMonster using: `"[Player Name]" injury (site:rotowire.com OR site:basketballmonster.com)`.
    - Flag any "Injury" or "Minute restriction" or "Trend down" rumors based on the returned absolute text layout.
 
 3. **Strategy Formulation**:
@@ -69,6 +70,6 @@ User: "How are we looking this week?"
 
 ### Example 2: Waiver Suggestion
 User: "Should I pick up any guards?"
-1. Execute `python3 scripts/get_waiver_pool_stats.py`
-2. For top guards in the list, execute `python3 scripts/search_external_intel.py "<Guard_Name>"`
+1. Execute `python3 scripts/fetch_rich_player_data.py --mode waiver`
+2. For top guards in the JSON output, execute `python3 scripts/search_external_intel.py "<Guard_Name>"`
 3. Compare guard values against user's weakest categories and provide drop/add advice.
