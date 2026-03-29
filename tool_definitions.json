@@ -1,7 +1,8 @@
+
 [
   {
     "name": "fetch_yahoo_raw_data",
-    "description": "Fetches raw league, team, roster, or matchup data from the Yahoo Fantasy API. Requires credentials in .env.",
+    "description": "Fetches raw league, team, roster, or matchup data from the Yahoo Fantasy API. Requires credentials in config/.env.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -20,6 +21,93 @@
     }
   },
   {
+    "name": "fetch_rich_player_data",
+    "description": "Aggregates enhanced player metrics, injury news recency, and remaining games for waivers or specific teams.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["waiver", "team"],
+          "description": "Whether to fetch waiver wire candidates or a specific team's roster."
+        },
+        "team_id": {
+          "type": "string",
+          "description": "Yahoo Team ID (required if mode is 'team'). Defaults to user's team if omitted."
+        }
+      },
+      "required": ["mode"]
+    }
+  },
+  {
+    "name": "recommend_lineup",
+    "description": "Analyzes current roster and suggests lineup optimizations (start/bench swaps) based on active games and scores.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "team_id": {
+          "type": "string",
+          "description": "Yahoo Team ID to analyze."
+        },
+        "date": {
+          "type": "string",
+          "description": "Optional date for analysis in YYYY-MM-DD format."
+        }
+      },
+      "required": ["team_id"]
+    }
+  },
+  {
+    "name": "compare_season_matchup",
+    "description": "Compares season-long statistics between two teams to identify high-level category advantages.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "t1": {
+          "type": "string",
+          "description": "Team 1 ID (typically the user's team)."
+        },
+        "t2": {
+          "type": "string",
+          "description": "Team 2 ID (typically the opponent's team)."
+        }
+      },
+      "required": ["t1", "t2"]
+    }
+  },
+  {
+    "name": "analyze_waiver_defense",
+    "description": "Identifies top defensive specialists (ST/BLK) from the waiver pool based on recent averages and remaining games.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Path to the rich_stats_waiver.json file. Defaults to data/rich_stats_waiver.json."
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "check_crunch_live",
+    "description": "Verifies which players on a roster have live games today using ESPN scoreboard data.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "team_id": {
+          "type": "string",
+          "description": "Yahoo Team ID."
+        },
+        "date": {
+          "type": "string",
+          "description": "Optional date to check (YYYY-MM-DD)."
+        }
+      },
+      "required": ["team_id"]
+    }
+  },
+  {
     "name": "search_external_intel",
     "description": "Searches Reddit r/fantasybball for news and discussions regarding a specific player.",
     "input_schema": {
@@ -31,15 +119,6 @@
         }
       },
       "required": ["player_name"]
-    }
-  },
-  {
-    "name": "get_waiver_pool_stats",
-    "description": "Fetches top waiver wire / free agent players currently available in the league.",
-    "input_schema": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   }
 ]
