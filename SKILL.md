@@ -16,6 +16,18 @@ When the user asks about their team, matchup, or waivers, use the executable scr
   `python3 scripts/fetch_yahoo_raw_data.py <endpoint_type>`
   *Endpoint types*: `league` (standings), `team` (stats), `roster`, `matchups` (scoreboard).
 
+- **To analyze and optimize current lineup**:
+  `python3 scripts/recommend_lineup.py --team-id <TEAM_ID>` (calculates start/bench swaps)
+
+- **To compare two teams' season stats**:
+  `python3 scripts/compare_season_matchup.py --t1 <TEAM_1_ID> --t2 <TEAM_2_ID>`
+
+- **To identify defensive streamers from waiver**:
+  `python3 scripts/analyze_waiver_defense.py` (points to ST/BLK specialists)
+
+- **To check live game status via ESPN**:
+  `python3 scripts/check_crunch_live.py --team-id <TEAM_ID>` (verifies which players are playing today)
+
 ### 🔄 1. Data Aggregation (Daily Sync)
 
 Before performing any analytics, you **MUST** run the following script to pull enhanced player metrics containing the last 5 historical calendar days and note recency timestamps:
@@ -56,7 +68,14 @@ After retrieving data, process it using the following logic step-by-step before 
     - **Fallback (Crucial)**: If `search_external_intel.py` returns `"fallback_suggested": true` or lacks concrete narrative text, **MUST** execute `search_web` targeting RotoWire/BasketballMonster using: `"[Player Name]" injury (site:rotowire.com OR site:basketballmonster.com)`.
    - Flag any "Injury" or "Minute restriction" or "Trend down" rumors based on the returned absolute text layout.
 
-3. **Strategy Formulation**:
+3. **Strategic Reasoning & Competitive Edge (MUST)**:
+   - **Defense-Adjusted Projections (Matchup Difficulty)**: Do not rely solely on season averages. Adjust expectations based on the opposing team's defensive rating and elite individual defenders (e.g., Wemby, Kawhi, or the Magic's top-ranked defense). Down-weight points and field goal percentages for players facing "defensive monsters."
+   - **Volume Dominance (Start/Bench Delta)**: Calculate the "Net Active Games" remaining for the week compared to the opponent. Prioritize players who maximize total starts, even at the cost of slight efficiency drops in tight counting-stat battles.
+   - **Category Swing Focus**: Identify categories where the gap is <10% (e.g., Steals or Rebounds). All waiver pickups and lineup swaps at the end of the week MUST ignore secure categories and focus exclusively on these "swing categories."
+   - **Dead-Weight Auditing**: Proactively identify bench players with 0 games remaining in the week and recommend dropping them for high-volume streaming options if the matchup is close.
+   - **Fatigue & B2B Analysis**: Factor in back-to-back games, which increase the risk of veteran rest or diminished performance efficiency.
+
+4. **Strategy Formulation**:
    - Synthesize the standings pressure and the weekly matchup gap.
    - Suggest 1-2 immediate actions (e.g., "Drop Player A due to injury found on Reddit, Pick up Player B from Waiver who contributes to your weak Category X").
 
